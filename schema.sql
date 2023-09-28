@@ -27,4 +27,10 @@ CREATE TABLE employee (
 );
 
 
+<<<<<<< HEAD
+=======
+USE departments;
+USE role;
+USE employee;
+>>>>>>> 2012c4956afcfb52abfb1d09c4d072212190b370
 
