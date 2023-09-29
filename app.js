@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 
 // Create a MySQL connection
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'root',
   password: "",
   database: 'employee_db',
@@ -32,6 +32,13 @@ function startApp() {
           'Add a role',
           'Add an employee',
           'Update an employee role',
+          'Update employee manager',
+          'View employees by manager',
+          'View employees by department',
+          'Delete department',
+          'Delete role',
+          'Delete employee',
+          'View department budget',
           'Exit',
         ],
       },
@@ -68,7 +75,7 @@ function startApp() {
 
 function viewDepartments() {
   // Implement code to view all departments
-  const query = 'SELECT id, name FROM departments';
+  const query = 'SELECT id, name FROM department';
 
   connection.query(query, (err, res) => {
     if (err) throw err;
@@ -84,7 +91,7 @@ function viewDepartments() {
 
 function viewRoles() {
   // Implement code to view all roles
-  const query = 'SELECT id, title, salary, department_id FROM roles';
+  const query = 'SELECT id, title, salary, department_id FROM role';
 
   connection.query(query, (err, res) => {
     if (err) throw err;
@@ -108,10 +115,10 @@ function viewEmployees() {
       d.name AS department,
       r.salary,
       CONCAT(m.first_name, ' ', m.last_name) AS manager
-    FROM employees e
-    LEFT JOIN roles r ON e.role_id = r.id
-    LEFT JOIN departments d ON r.department_id = d.id
-    LEFT JOIN employees m ON e.manager_id = m.id
+    FROM employee e
+    LEFT JOIN role r ON e.role_id = r.id
+    LEFT JOIN department d ON r.department_id = d.id
+    LEFT JOIN employee m ON e.manager_id = m.id
   `;
 
   connection.query(query, (err, res) => {
@@ -142,7 +149,7 @@ function addDepartment() {
       },
     ])
     .then((answer) => {
-      const query = 'INSERT INTO departments (name) VALUES (?)';
+      const query = 'INSERT INTO department (name) VALUES (?)';
 
       connection.query(query, [answer.departmentName], (err, res) => {
         if (err) throw err;
@@ -176,7 +183,7 @@ function addRole() {
     },
   ])
   .then((answer) => {
-    const query = 'INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)';
+    const query = 'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)';
 
     connection.query(query, [answer.title, answer.salary, answer.departmentId], (err, res) => {
       if (err) throw err;
@@ -215,7 +222,7 @@ function addEmployee() {
       },
     ])
     .then((answer) => {
-      const query = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+      const query = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
 
       connection.query(
         query,
@@ -250,7 +257,7 @@ function updateEmployeeRole() {
   const employeeId = answer.employeeId;
   const newRoleId = answer.newRoleId;
 
-  const query = 'UPDATE employees SET role_id = ? WHERE id = ?';
+  const query = 'UPDATE employee SET role_id = ? WHERE id = ?';
 
   connection.query(query, [newRoleId, employeeId], (err, res) => {
     if (err) throw err;
@@ -263,7 +270,140 @@ function updateEmployeeRole() {
 });
 }
 
+function updateEmployeeManager() {
+  inquirer
+    .prompt([
+      {
+        type: 'number',
+        name: 'employeeId',
+        message: 'Enter the ID of the employee you want to update:',
+      },
+      {
+        type: 'number',
+        name: 'newManagerId',
+        message: 'Enter the new manager ID for the employee:',
+      },
+    ])
+    .then((answer) => {
+      const employeeId = answer.employeeId;
+      const newManagerId = answer.newManagerId;
 
+      const query = 'UPDATE employee SET manager_id = ? WHERE id = ?';
+
+      connection.query(query, [newManagerId, employeeId], (err, res) => {
+        if (err) throw err;
+
+        console.log(`\nEmployee's manager updated successfully!`);
+
+        // After updating the manager, return to the main menu
+        startApp();
+      });
+    });
+}
+
+function viewEmployeesByManager() {
+  inquirer
+    .prompt([
+      {
+        type: 'number',
+        name: 'managerId',
+        message: 'Enter the ID of the manager to view employees:',
+      },
+    ])
+    .then((answer) => {
+      const managerId = answer.managerId;
+
+      const query = 'SELECT * FROM employee WHERE manager_id = ?';
+
+      connection.query(query, [managerId], (err, res) => {
+        if (err) throw err;
+
+        console.log(`\nEmployees managed by Manager ID ${managerId}:`);
+        console.table(res);
+
+        // After displaying the employees, return to the main menu
+        startApp();
+      });
+    });
+}
+
+function viewEmployeesByDepartment() {
+  inquirer
+    .prompt([
+      {
+        type: 'number',
+        name: 'departmentId',
+        message: 'Enter the ID of the department to view employees:',
+      },
+    ])
+    .then((answer) => {
+      const departmentId = answer.departmentId;
+
+      const query = 'SELECT * FROM employee WHERE role_id IN (SELECT id FROM role WHERE department_id = ?)';
+
+      connection.query(query, [departmentId], (err, res) => {
+        if (err) throw err;
+
+        console.log(`\nEmployees in Department ID ${departmentId}:`);
+        console.table(res);
+
+        // After displaying the employees, return to the main menu
+        startApp();
+      });
+    });
+}
+
+function deleteDepartment() {
+  inquirer
+    .prompt([
+      {
+        type: 'number',
+        name: 'departmentId',
+        message: 'Enter the ID of the department to delete:',
+      },
+    ])
+    .then((answer) => {
+      const departmentId = answer.departmentId;
+
+      const query = 'DELETE FROM department WHERE id = ?';
+
+      connection.query(query, [departmentId], (err, res) => {
+        if (err) throw err;
+
+        console.log(`\nDepartment with ID ${departmentId} deleted successfully!`);
+
+        // After deleting the department, return to the main menu
+        startApp();
+      });
+    });
+}
+
+function viewDepartmentBudget() {
+  inquirer
+    .prompt([
+      {
+        type: 'number',
+        name: 'departmentId',
+        message: 'Enter the ID of the department to view budget:',
+      },
+    ])
+    .then((answer) => {
+      const departmentId = answer.departmentId;
+
+      const query = 'SELECT SUM(r.salary) AS total_budget FROM employee e JOIN role r ON e.role_id = r.id WHERE r.department_id = ?';
+
+      connection.query(query, [departmentId], (err, res) => {
+        if (err) throw err;
+
+        const totalBudget = res[0].total_budget || 0;
+
+        console.log(`\nTotal Utilized Budget for Department ID ${departmentId}: $${totalBudget}`);
+
+        // After displaying the budget, return to the main menu
+        startApp();
+      });
+    });
+}
 
 
 
