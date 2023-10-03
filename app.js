@@ -66,6 +66,21 @@ function startApp() {
         case 'Update an employee role':
           updateEmployeeRole();
           break;
+        case 'Update employee manager':
+           updateEmployeeManager();
+           break;
+        case 'View employees by manager':
+           viewEmployeesByManager();
+           break;
+        case 'View employees by department':
+           viewEmployeesByDepartment();
+           break;     
+        case 'Delete department':
+           deleteDepartment();
+           break;     
+        case 'View department Budget':
+           viewDepartmentBudget();
+           break;   
         case 'Exit':
           connection.end();
           break;
@@ -405,54 +420,4 @@ function viewDepartmentBudget() {
     });
 }
 
-const express = require('express');
-const app = express();
 
-// Import necessary modules and database connections here
-
-// Define a route for deleting a department
-app.delete('/department/:departmentId', async (req, res) => {
-  try {
-    const departmentId = req.params.departmentId;
-
-    // Implement logic to delete the department from the database
-    // Example for MongoDB/Mongoose:
-    // await Department.findByIdAndDelete(departmentId);
-
-    // Example for MySQL/Sequelize:
-    // await Department.destroy({ where: { id: departmentId } });
-
-    // Send a success response
-    res.status(200).json({ message: 'Department deleted successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error deleting department' });
-  }
-});
-
-// ... other routes and middleware
-
-// Start your Express.js server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-
-const departmentIdToDelete = '123'; // Replace with the actual department ID
-fetch(`/departments/${departmentIdToDelete}`, {
-  method: 'DELETE',
-})
-  .then((response) => {
-    if (response.ok) {
-      console.log('Department deleted successfully');
-      // Handle success
-    } else {
-      console.error('Error deleting department');
-      // Handle error
-    }
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-    // Handle error
-  });

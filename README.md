@@ -1,9 +1,6 @@
 # SQL-EMPLOYEE-TRACKER
 To be able to select, update, or delete a database
 
-<<<<<<< HEAD
-
-=======
 ## User Story
 
 ```md
@@ -33,4 +30,3 @@ THEN I am prompted to enter the employee’s first name, last name, role, and ma
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 ```
->>>>>>> 9af0349704797f4e6671ca1fe792cd15236567c7
